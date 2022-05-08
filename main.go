@@ -7,7 +7,8 @@ import (
 	"go.uber.org/zap"
 	"net/http"
 	"playground/rest-api/gomasters/config"
-	"playground/rest-api/gomasters/handler"
+	adminHandler "playground/rest-api/gomasters/handler/admin"
+	userHandler "playground/rest-api/gomasters/handler/user"
 	adminRepo "playground/rest-api/gomasters/repository/admin"
 	userRepo "playground/rest-api/gomasters/repository/user"
 	"playground/rest-api/gomasters/router"
@@ -38,10 +39,10 @@ func main() {
 	uRepo := userRepo.NewUserRepository(logger, db)
 	aRepo := adminRepo.NewAdminRepository(logger, db)
 
-	userHandler := handler.NewHandler(logger, uRepo)
-	adminHandler := handler.NewHandler(logger, aRepo)
+	uHandler := userHandler.NewUserHandler(logger, uRepo)
+	aHandler := adminHandler.NewAdminHandler(logger, aRepo)
 
-	r := router.NewRouter(userHandler, adminHandler)
+	r := router.NewRouter(uHandler, aHandler)
 
 	addr := fmt.Sprint(cfg.Server.Host, ":", cfg.Server.Port)
 	logger.Info("Start server.", zap.String("server", addr))

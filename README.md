@@ -11,7 +11,7 @@ Used libs:
 * logger: go.uber.org/zap;
 * read yaml: gopkg.in/yaml.
 
-DB: PostgreSQL.</br>
+DB: PostgreSQL (password saved as an env var, other parameters saved in yml file).</br>
 
 Requests:
 <pre>
