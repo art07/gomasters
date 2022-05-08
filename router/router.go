@@ -1,7 +1,8 @@
 package router
 
 import (
-	"github.com/go-chi/chi/v5"
+	gochi "github.com/go-chi/chi/v5"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -13,29 +14,31 @@ type Handler interface {
 	DeleteRecord(w http.ResponseWriter, r *http.Request)
 }
 
-func NewRouter(uh, ah Handler) http.Handler {
-	r := chi.NewRouter()
+func NewRouter(uh, ah Handler, l *zap.Logger) http.Handler {
+	r := gochi.NewRouter()
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("REST API works fine)"))
+		if _, err := w.Write([]byte("REST API works fine)")); err != nil {
+			l.Error("Write index page error", zap.Error(err))
+		}
 	})
 
-	r.Route("/users", func(r chi.Router) {
+	r.Route("/users", func(r gochi.Router) {
 		r.Get("/", uh.GetAll)
 		r.Post("/", uh.CreateRecord)
 
-		r.Route("/{id}", func(r chi.Router) {
+		r.Route("/{id}", func(r gochi.Router) {
 			r.Get("/", uh.ReadRecord)
 			r.Put("/", uh.UpdateRecord)
 			r.Delete("/", uh.DeleteRecord)
 		})
 	})
 
-	r.Route("/admins", func(r chi.Router) {
+	r.Route("/admins", func(r gochi.Router) {
 		r.Get("/", ah.GetAll)
 		r.Post("/", ah.CreateRecord)
 
-		r.Route("/{id}", func(r chi.Router) {
+		r.Route("/{id}", func(r gochi.Router) {
 			r.Get("/", ah.ReadRecord)
 			r.Put("/", ah.UpdateRecord)
 			r.Delete("/", ah.DeleteRecord)

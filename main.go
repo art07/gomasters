@@ -42,7 +42,7 @@ func main() {
 	uHandler := userHandler.NewUserHandler(logger, uRepo)
 	aHandler := adminHandler.NewAdminHandler(logger, aRepo)
 
-	r := router.NewRouter(uHandler, aHandler)
+	r := router.NewRouter(uHandler, aHandler, logger)
 
 	addr := fmt.Sprint(cfg.Server.Host, ":", cfg.Server.Port)
 	logger.Info("Start server.", zap.String("server", addr))
