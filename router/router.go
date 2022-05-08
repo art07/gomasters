@@ -10,6 +10,7 @@ type Handler interface {
 	CreateRecord(w http.ResponseWriter, r *http.Request)
 	ReadRecord(w http.ResponseWriter, r *http.Request)
 	UpdateRecord(w http.ResponseWriter, r *http.Request)
+	DeleteRecord(w http.ResponseWriter, r *http.Request)
 }
 
 func NewRouter(uh, ah Handler) http.Handler {
@@ -26,7 +27,7 @@ func NewRouter(uh, ah Handler) http.Handler {
 		r.Route("/{id}", func(r chi.Router) {
 			r.Get("/", uh.ReadRecord)
 			r.Put("/", uh.UpdateRecord)
-			r.Delete("/", nil)
+			r.Delete("/", uh.DeleteRecord)
 		})
 	})
 

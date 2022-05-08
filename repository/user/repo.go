@@ -90,3 +90,18 @@ func (ur *UserRepository) UpdateRecord(recordId string, p entity.Person) (string
 
 	return id, nil
 }
+
+func (ur *UserRepository) DeleteRecord(recordId string) (string, error) {
+	row := ur.db.QueryRow(
+		"DELETE FROM users WHERE id=$1 RETURNING id;", recordId)
+	if row.Err() != nil {
+		return "", fmt.Errorf("delete error > %v", row.Err())
+	}
+
+	var id string
+	if err := row.Scan(&id); err != nil {
+		return "", fmt.Errorf("delete error > %v", err)
+	}
+
+	return id, nil
+}

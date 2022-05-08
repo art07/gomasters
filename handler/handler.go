@@ -15,6 +15,7 @@ type Repository interface {
 	CreateRecord(entity.Person) (string, error)
 	ReadRecord(string) (entity.Person, error)
 	UpdateRecord(string, entity.Person) (string, error)
+	DeleteRecord(string) (string, error)
 }
 
 type Handler struct {
@@ -91,7 +92,7 @@ func (h *Handler) UpdateRecord(w http.ResponseWriter, r *http.Request) {
 	_, err := uuid.Parse(id)
 	if err != nil {
 		h.logger.Error(err.Error())
-		render("Record ID error (see logs for more info)", w)
+		render("Update record by ID error (see logs for more info)", w)
 		return
 	}
 
@@ -119,6 +120,27 @@ func (h *Handler) UpdateRecord(w http.ResponseWriter, r *http.Request) {
 	}
 
 	render(fmt.Sprintf("Record with ID > %s updated successfully!", resId), w)
+}
+
+func (h *Handler) DeleteRecord(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+
+	// UUID check
+	_, err := uuid.Parse(id)
+	if err != nil {
+		h.logger.Error(err.Error())
+		render("Delete by ID error (see logs for more info)", w)
+		return
+	}
+
+	res, err := h.repo.DeleteRecord(id)
+	if err != nil {
+		h.logger.Error(err.Error())
+		render("Delete record error (see logs for more info)", w)
+		return
+	}
+
+	render(fmt.Sprintf("Record with ID > %s deleted successfully!", res), w)
 }
 
 func render(data interface{}, w http.ResponseWriter) {
