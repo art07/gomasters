@@ -92,5 +92,16 @@ func (ar *AdminRepository) UpdateRecord(recordId string, p entity.Person) (strin
 }
 
 func (ar *AdminRepository) DeleteRecord(recordId string) (string, error) {
-	return "", nil
+	row := ar.db.QueryRow(
+		"DELETE FROM admins WHERE id=$1 RETURNING id;", recordId)
+	if row.Err() != nil {
+		return "", fmt.Errorf("delete error > %v", row.Err())
+	}
+
+	var id string
+	if err := row.Scan(&id); err != nil {
+		return "", fmt.Errorf("delete error > %v", err)
+	}
+
+	return id, nil
 }

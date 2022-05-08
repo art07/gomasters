@@ -38,7 +38,7 @@ func NewRouter(uh, ah Handler) http.Handler {
 		r.Route("/{id}", func(r chi.Router) {
 			r.Get("/", ah.ReadRecord)
 			r.Put("/", ah.UpdateRecord)
-			//	r.Delete("/", ah.DeleteRecord)
+			r.Delete("/", ah.DeleteRecord)
 		})
 	})
 
