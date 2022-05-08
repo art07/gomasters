@@ -9,7 +9,8 @@ Used libs:
 * postgres driver: jackc/pgx;
 * read envs: kelseyhightower/envconfig;
 * logger: go.uber.org/zap;
-* read yaml: gopkg.in/yaml.
+* read yaml: gopkg.in/yaml;
+* lint: golangci-lint.
 
 DB: PostgreSQL (password saved as an env var, other parameters saved in yml file).</br>
 
