@@ -11,6 +11,7 @@ import (
 	"playground/rest-api/gomasters/handler"
 )
 
+//goland:noinspection GoNameStartsWithPackageName
 type AdminHandler struct {
 	logger *zap.Logger
 	repo   handler.Repository

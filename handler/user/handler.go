@@ -11,6 +11,7 @@ import (
 	"playground/rest-api/gomasters/handler"
 )
 
+//goland:noinspection GoNameStartsWithPackageName
 type UserHandler struct {
 	logger *zap.Logger
 	repo   handler.Repository
@@ -20,7 +21,7 @@ func NewUserHandler(l *zap.Logger, r handler.Repository) *UserHandler {
 	return &UserHandler{logger: l, repo: r}
 }
 
-func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) GetAll(w http.ResponseWriter, _ *http.Request) {
 	res, err := h.repo.GetAll()
 	if err != nil {
 		h.logger.Error(err.Error())
