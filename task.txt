@@ -1,0 +1,39 @@
+REST API на Go для создания/удаления/редактирования юзеров.
+Запушить код на github.
+В идеале с unit тестами.
+БД - PostgreSQL.
+
+Запросы:
+GET /users - get all users
+GET /users/<id> - get user
+POST /users - create user
+PUT /users/<id> - edit user
+DELETE /users/<id> - delete user
+
+type User struct {
+    ID uuid
+    Firstname string
+    Lastname string
+    Email string
+    Age uint
+    Created time.Time
+}
+
+ID / Created генерим сами. Остальные - обязательны и валидируем на входе.
+
+
+
+Create test user:
+{
+    "Firstname": "NewUser",
+    "Lastname": "NewUserLastname",
+    "Email": "newuser@gmail.com",
+    "Age": 30
+}
+
+Update test user:
+{
+        "ID": "1d2ef152-f440-4be2-b659-46cc6dcbc966",
+        "Firstname": "FirstUser123",
+        "Lastname": "LastNameA123"
+}
