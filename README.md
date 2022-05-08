@@ -9,7 +9,8 @@ Used libs:
 * postgres driver: jackc/pgx;
 * read envs: kelseyhightower/envconfig;
 * logger: go.uber.org/zap;
-* read yaml: gopkg.in/yaml.
+* read yaml: gopkg.in/yaml;
+* lint: golangci-lint.
 
 DB: PostgreSQL (password saved as an env var, other parameters saved in yml file).</br>
 
@@ -36,6 +37,7 @@ type User struct {
 </pre>
 
 INDEX</br>
+![Postman](https://user-images.githubusercontent.com/21006294/167312871-25943a69-65c3-4e11-8d1a-5b746ebd1ea9.png)
 ![Index](https://user-images.githubusercontent.com/21006294/167303132-684c359b-3021-4c88-bb18-9ad9540f54e5.png)
 
 GET ALL RECORDS</br>

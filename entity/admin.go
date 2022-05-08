@@ -2,7 +2,7 @@ package entity
 
 import (
 	"fmt"
-	"github.com/go-playground/validator/v10"
+	valid "github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"time"
@@ -29,7 +29,7 @@ func (a *Admin) String() string {
 }
 
 func (a *Admin) Validate(l *zap.Logger) bool {
-	validate := validator.New()
+	validate := valid.New()
 	if err := validate.Struct(a); err != nil {
 		l.Error("Validation error for admin", zap.Error(err), zap.String("user", a.String()))
 		return false

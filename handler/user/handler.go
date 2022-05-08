@@ -3,7 +3,7 @@ package user
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-chi/chi/v5"
+	gochi "github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"net/http"
@@ -11,6 +11,7 @@ import (
 	"playground/rest-api/gomasters/handler"
 )
 
+//goland:noinspection GoNameStartsWithPackageName
 type UserHandler struct {
 	logger *zap.Logger
 	repo   handler.Repository
@@ -20,7 +21,7 @@ func NewUserHandler(l *zap.Logger, r handler.Repository) *UserHandler {
 	return &UserHandler{logger: l, repo: r}
 }
 
-func (h *UserHandler) GetAll(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) GetAll(w http.ResponseWriter, _ *http.Request) {
 	res, err := h.repo.GetAll()
 	if err != nil {
 		h.logger.Error(err.Error())
@@ -58,7 +59,7 @@ func (h *UserHandler) CreateRecord(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) ReadRecord(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := gochi.URLParam(r, "id")
 	_, err := uuid.Parse(id)
 	if err != nil {
 		h.logger.Error(err.Error())
@@ -79,7 +80,7 @@ func (h *UserHandler) UpdateRecord(w http.ResponseWriter, r *http.Request) {
 	//goland:noinspection GoUnhandledErrorResult
 	defer r.Body.Close()
 
-	id := chi.URLParam(r, "id")
+	id := gochi.URLParam(r, "id")
 
 	// UUID check
 	_, err := uuid.Parse(id)
@@ -116,7 +117,7 @@ func (h *UserHandler) UpdateRecord(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) DeleteRecord(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := gochi.URLParam(r, "id")
 
 	// UUID check
 	_, err := uuid.Parse(id)
@@ -138,6 +139,5 @@ func (h *UserHandler) DeleteRecord(w http.ResponseWriter, r *http.Request) {
 
 func render(data interface{}, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json")
-	//goland:noinspection GoUnhandledErrorResult
-	json.NewEncoder(w).Encode(data)
+	_ = json.NewEncoder(w).Encode(data)
 }
