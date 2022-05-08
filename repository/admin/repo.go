@@ -33,3 +33,7 @@ func (ar *AdminRepository) ReadRecord(id string) (entity.Person, error) {
 func (ar *AdminRepository) UpdateRecord(id string, p entity.Person) (string, error) {
 	return "", nil
 }
+
+func (ar *AdminRepository) DeleteRecord(recordId string) (string, error) {
+	return "", nil
+}
