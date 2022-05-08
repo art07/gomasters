@@ -27,7 +27,7 @@ func (ur *UserRepository) GetAll() ([]entity.Person, error) {
 	//goland:noinspection GoUnhandledErrorResult
 	defer rows.Close()
 
-	var users []entity.Person
+	var persons []entity.Person
 	for rows.Next() {
 		var u entity.User
 		if err := rows.Scan(&u.ID, &u.Firstname, &u.Lastname, &u.Email, &u.Age, &u.Created); err != nil {
@@ -40,10 +40,10 @@ func (ur *UserRepository) GetAll() ([]entity.Person, error) {
 			continue
 		}
 
-		users = append(users, &u)
-		ur.logger.Info("User added", zap.String("user", u.String()))
+		persons = append(persons, &u)
+		ur.logger.Info("User added to slice", zap.String("user", u.String()))
 	}
-	return users, nil
+	return persons, nil
 }
 
 func (ur *UserRepository) CreateRecord(p entity.Person) (string, error) {
