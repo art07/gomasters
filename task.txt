@@ -37,3 +37,10 @@ Update test user:
         "Firstname": "FirstUser123",
         "Lastname": "LastNameA123"
 }
+
+{
+        "Firstname": "SuperUserTwo",
+        "Lastname": "SuperLastNameTwo",
+        "Email": "admin2@gmail.com",
+        "Age": 60
+}

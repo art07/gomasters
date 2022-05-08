@@ -17,8 +17,8 @@ type Admin struct {
 	Created   time.Time `validate:"required"`
 }
 
-func NewAdmin() *User {
-	return &User{
+func NewAdmin() *Admin {
+	return &Admin{
 		ID:      uuid.New().String(),
 		Created: time.Now(),
 	}

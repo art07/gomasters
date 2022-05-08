@@ -47,7 +47,21 @@ func (ar *AdminRepository) GetAll() ([]entity.Person, error) {
 }
 
 func (ar *AdminRepository) CreateRecord(p entity.Person) (string, error) {
-	return "", nil
+	a := p.(*entity.Admin)
+	row := ar.db.QueryRow(
+		"INSERT INTO admins(id, first_name, last_name, email, age, created) "+
+			"VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;",
+		a.ID, a.Firstname, a.Lastname, a.Email, a.Age, a.Created)
+	if row.Err() != nil {
+		return "", fmt.Errorf("insert error > %v", row.Err())
+	}
+
+	var id string
+	if err := row.Scan(&id); err != nil {
+		return "", fmt.Errorf("insert error > %v", err)
+	}
+
+	return id, nil
 }
 
 func (ar *AdminRepository) ReadRecord(id string) (entity.Person, error) {
