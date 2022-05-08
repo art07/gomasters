@@ -65,11 +65,30 @@ func (ar *AdminRepository) CreateRecord(p entity.Person) (string, error) {
 }
 
 func (ar *AdminRepository) ReadRecord(id string) (entity.Person, error) {
-	return nil, nil
+	var a entity.Admin
+	row := ar.db.QueryRow("SELECT * FROM admins WHERE id=$1;", id)
+	if err := row.Scan(&a.ID, &a.Firstname, &a.Lastname, &a.Email, &a.Age, &a.Created); err != nil {
+		return nil, fmt.Errorf("read record error")
+	}
+
+	return &a, nil
 }
 
-func (ar *AdminRepository) UpdateRecord(id string, p entity.Person) (string, error) {
-	return "", nil
+func (ar *AdminRepository) UpdateRecord(recordId string, p entity.Person) (string, error) {
+	u := p.(*entity.Admin)
+	row := ar.db.QueryRow(
+		"UPDATE admins SET id=$1, first_name=$2, last_name=$3, email=$4, age=$5, created=$6 WHERE id=$7 RETURNING id;",
+		u.ID, u.Firstname, u.Lastname, u.Email, u.Age, u.Created, recordId)
+	if row.Err() != nil {
+		return "", fmt.Errorf("update error > %v", row.Err())
+	}
+
+	var id string
+	if err := row.Scan(&id); err != nil {
+		return "", fmt.Errorf("update error > %v", err)
+	}
+
+	return id, nil
 }
 
 func (ar *AdminRepository) DeleteRecord(recordId string) (string, error) {

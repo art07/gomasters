@@ -35,11 +35,11 @@ func NewRouter(uh, ah Handler) http.Handler {
 		r.Get("/", ah.GetAll)
 		r.Post("/", ah.CreateRecord)
 
-		//r.Route("/{id}", func(r chi.Router) {
-		//	r.Get("/", uh.ReadRecord)
-		//	r.Put("/", uh.UpdateRecord)
-		//	r.Delete("/", uh.DeleteRecord)
-		//})
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", ah.ReadRecord)
+			r.Put("/", ah.UpdateRecord)
+			//	r.Delete("/", ah.DeleteRecord)
+		})
 	})
 
 	return r

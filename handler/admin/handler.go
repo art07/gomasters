@@ -97,15 +97,15 @@ func (h *AdminHandler) UpdateRecord(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Decode data for updating
-	var u entity.User
-	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
+	var a entity.Admin
+	if err := json.NewDecoder(r.Body).Decode(&a); err != nil {
 		h.logger.Error(err.Error())
 		render("Decode record error (see logs for more info)", w)
 		return
 	}
 
 	// Update section
-	resId, err := h.repo.UpdateRecord(id, &u)
+	resId, err := h.repo.UpdateRecord(id, &a)
 	if err != nil {
 		h.logger.Error("Update error", zap.Error(err))
 		render("Update error (see logs for more info)", w)

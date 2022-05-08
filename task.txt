@@ -36,11 +36,24 @@ Update test user:
         "ID": "1d2ef152-f440-4be2-b659-46cc6dcbc966",
         "Firstname": "FirstUser123",
         "Lastname": "LastNameA123"
+        "Email": "newuser@gmail.com",
+        "Age": 30
 }
 
+Create test admin:
 {
         "Firstname": "SuperUserTwo",
         "Lastname": "SuperLastNameTwo",
         "Email": "admin2@gmail.com",
         "Age": 60
+}
+
+Update test admin:
+{
+    "ID": "d79beb00-b831-4767-b3a6-8517106fb0cb",
+    "Firstname": "SuperUserTwoUPDATED",
+    "Lastname": "SuperLastNameTwo",
+    "Email": "admin2@gmail.com",
+    "Age": 60,
+    "Created": "2022-05-08T00:00:00Z"
 }

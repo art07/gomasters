@@ -85,7 +85,7 @@ func (ur *UserRepository) UpdateRecord(recordId string, p entity.Person) (string
 
 	var id string
 	if err := row.Scan(&id); err != nil {
-		return "", fmt.Errorf("insert error > %v", err)
+		return "", fmt.Errorf("update error > %v", err)
 	}
 
 	return id, nil
