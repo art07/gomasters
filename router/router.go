@@ -1,21 +1,29 @@
 package router
 
 import (
-	gochi "github.com/go-chi/chi/v5"
+	"database/sql"
+	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 	"net/http"
+	userHandler "playground/rest-api/gomasters/handler/user"
+	userRepo "playground/rest-api/gomasters/repository/postgres/user"
+	userUsecase "playground/rest-api/gomasters/usecase/user"
 )
 
-type Handler interface {
-	GetAll(w http.ResponseWriter, r *http.Request)
-	CreateRecord(w http.ResponseWriter, r *http.Request)
-	ReadRecord(w http.ResponseWriter, r *http.Request)
-	UpdateRecord(w http.ResponseWriter, r *http.Request)
-	DeleteRecord(w http.ResponseWriter, r *http.Request)
-}
+func NewRouter(db *sql.DB, l *zap.Logger) chi.Router {
+	// DB inject in repository
+	uRepo := userRepo.NewRepository(db)
+	//aRepo := adminRepo.NewRepository(db)
 
-func NewRouter(uh, ah Handler, l *zap.Logger) http.Handler {
-	r := gochi.NewRouter()
+	// Repo inject in usecase
+	uUsecase := userUsecase.NewUsecase(uRepo)
+	//aUsecase := adminUsecase.NewUsecase(aRepo)
+
+	// Usecase inject in handler
+	uHandler := userHandler.NewHandler(l, uUsecase)
+	//aHandler := adminHandler.NewHandler(l, aUsecase)
+
+	r := chi.NewRouter()
 
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		if _, err := w.Write([]byte("REST API works fine)")); err != nil {
@@ -23,27 +31,27 @@ func NewRouter(uh, ah Handler, l *zap.Logger) http.Handler {
 		}
 	})
 
-	r.Route("/users", func(r gochi.Router) {
-		r.Get("/", uh.GetAll)
-		r.Post("/", uh.CreateRecord)
+	r.Route("/users", func(r chi.Router) {
+		r.Get("/", uHandler.GetAll)
+		r.Post("/", uHandler.Create)
 
-		r.Route("/{id}", func(r gochi.Router) {
-			r.Get("/", uh.ReadRecord)
-			r.Put("/", uh.UpdateRecord)
-			r.Delete("/", uh.DeleteRecord)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", uHandler.GetById)
+			r.Put("/", uHandler.Update)
+			r.Delete("/", uHandler.Delete)
 		})
 	})
 
-	r.Route("/admins", func(r gochi.Router) {
-		r.Get("/", ah.GetAll)
-		r.Post("/", ah.CreateRecord)
-
-		r.Route("/{id}", func(r gochi.Router) {
-			r.Get("/", ah.ReadRecord)
-			r.Put("/", ah.UpdateRecord)
-			r.Delete("/", ah.DeleteRecord)
-		})
-	})
+	//r.Route("/admins", func(r chi.Router) {
+	//	r.Get("/", aHandler.GetAll)
+	//	r.Post("/", aHandler.Create)
+	//
+	//	r.Route("/{id}", func(r chi.Router) {
+	//		r.Get("/", aHandler.GetById)
+	//		r.Put("/", aHandler.Update)
+	//		r.Delete("/", aHandler.Delete)
+	//	})
+	//})
 
 	return r
 }

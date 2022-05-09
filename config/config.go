@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/kelseyhightower/envconfig"
 	"gopkg.in/yaml.v2"
 	"os"
@@ -43,4 +44,13 @@ func GetAppConfig() (*AppConfig, error) {
 		}
 	}
 	return appConfig, nil
+}
+
+func (c *AppConfig) GetDbString() string {
+	return fmt.Sprintf("user=%s password=%s host=%s port=%s database=%s sslmode=disable",
+		c.Database.User, c.Database.Password, c.Database.Host, c.Database.Port, c.Database.Name)
+}
+
+func (c *AppConfig) GetServerString() string {
+	return fmt.Sprintf("%s:%s", c.Server.Host, c.Server.Port)
 }

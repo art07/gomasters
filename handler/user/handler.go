@@ -3,141 +3,140 @@ package user
 import (
 	"encoding/json"
 	"fmt"
-	gochi "github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"net/http"
 	"playground/rest-api/gomasters/entity"
-	"playground/rest-api/gomasters/handler"
 )
 
-//goland:noinspection GoNameStartsWithPackageName
-type UserHandler struct {
+type Usecase interface {
+	GetAll() ([]*entity.User, error)
+	Create(*entity.User) (string, error)
+	GetById(id string) (*entity.User, error)
+	Update(string, *entity.User) (string, error)
+	Delete(recordId string) (string, error)
+}
+
+type Handler struct {
 	logger *zap.Logger
-	repo   handler.Repository
+	uc     Usecase
 }
 
-func NewUserHandler(l *zap.Logger, r handler.Repository) *UserHandler {
-	return &UserHandler{logger: l, repo: r}
+func NewHandler(l *zap.Logger, uc Usecase) *Handler {
+	return &Handler{
+		logger: l, uc: uc,
+	}
 }
 
-func (h *UserHandler) GetAll(w http.ResponseWriter, _ *http.Request) {
-	res, err := h.repo.GetAll()
+func (h *Handler) GetAll(w http.ResponseWriter, _ *http.Request) {
+	users, err := h.uc.GetAll()
 	if err != nil {
-		h.logger.Error(err.Error())
-		render("Get all records error (see logs for more info)", w)
+		h.logger.Error("get all error", zap.Error(err))
+		render(w, "get all error")
 		return
 	}
-	render(res, w)
+	h.logger.Info("ger all succeeded")
+
+	render(w, users)
 }
 
-func (h *UserHandler) CreateRecord(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	//goland:noinspection GoUnhandledErrorResult
 	defer r.Body.Close()
 
 	u := entity.NewUser()
 	if err := json.NewDecoder(r.Body).Decode(u); err != nil {
-		h.logger.Error(err.Error())
-		render("Create record error (see logs for more info)", w)
+		h.logger.Error("decode user error", zap.Error(err))
+		render(w, "decode user error")
 		return
 	}
 
-	// Struct validation.
-	if ok := u.Validate(h.logger); !ok {
-		render("Create record error (see logs for more info)", w)
-		return
-	}
-
-	res, err := h.repo.CreateRecord(u)
+	userId, err := h.uc.Create(u)
 	if err != nil {
-		h.logger.Error(err.Error())
-		render("Create record error (see logs for more info)", w)
+		h.logger.Error("create user error", zap.Error(err))
+		render(w, "create user error")
 		return
 	}
 
-	render(fmt.Sprintf("Record with ID > %s created successfully!", res), w)
+	render(w, fmt.Sprintf("User with ID: %s, created successfully!", userId))
 }
 
-func (h *UserHandler) ReadRecord(w http.ResponseWriter, r *http.Request) {
-	id := gochi.URLParam(r, "id")
-	_, err := uuid.Parse(id)
-	if err != nil {
-		h.logger.Error(err.Error())
-		render("Read record error (see logs for more info)", w)
+func (h *Handler) GetById(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	if err := checkUUID(id); err != nil {
+		h.logger.Error("uuid error", zap.Error(err))
+		render(w, "uuid error")
 		return
 	}
 
-	res, err := h.repo.ReadRecord(id)
+	user, err := h.uc.GetById(id)
 	if err != nil {
-		h.logger.Error(err.Error())
-		render("Read record error (see logs for more info)", w)
+		h.logger.Error("get by id error", zap.Error(err))
+		render(w, "get by id error")
 		return
 	}
-	render(res, w)
+	render(w, user)
 }
 
-func (h *UserHandler) UpdateRecord(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	//goland:noinspection GoUnhandledErrorResult
 	defer r.Body.Close()
 
-	id := gochi.URLParam(r, "id")
+	id := chi.URLParam(r, "id")
+	if err := checkUUID(id); err != nil {
+		h.logger.Error("uuid error", zap.Error(err))
+		render(w, "uuid error")
+		return
+	}
 
-	// UUID check
-	_, err := uuid.Parse(id)
+	user, err := h.uc.GetById(id)
 	if err != nil {
-		h.logger.Error(err.Error())
-		render("Update record by ID error (see logs for more info)", w)
+		h.logger.Error("update error, user not found", zap.Error(err))
+		render(w, "update error, user not found")
 		return
 	}
 
-	// Entity check
-	if _, err := h.repo.ReadRecord(id); err != nil {
-		h.logger.Error("Record not found", zap.String("userId", id), zap.Error(err))
-		render("Record not found (see logs for more info)", w)
+	if err = json.NewDecoder(r.Body).Decode(user); err != nil {
+		h.logger.Error("decode user error", zap.Error(err))
+		render(w, "decode user error")
 		return
 	}
 
-	// Decode data for updating
-	var u entity.User
-	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
-		h.logger.Error(err.Error())
-		render("Decode record error (see logs for more info)", w)
-		return
-	}
-
-	// Update section
-	resId, err := h.repo.UpdateRecord(id, &u)
+	userId, err := h.uc.Update(id, user)
 	if err != nil {
-		h.logger.Error("Update error", zap.Error(err))
-		render("Update error (see logs for more info)", w)
+		h.logger.Error("update error", zap.Error(err))
+		render(w, "update error")
 		return
 	}
 
-	render(fmt.Sprintf("Record with ID > %s updated successfully!", resId), w)
+	render(w, fmt.Sprintf("User with ID: %s, updated successfully!", userId))
 }
 
-func (h *UserHandler) DeleteRecord(w http.ResponseWriter, r *http.Request) {
-	id := gochi.URLParam(r, "id")
-
-	// UUID check
-	_, err := uuid.Parse(id)
-	if err != nil {
-		h.logger.Error(err.Error())
-		render("Delete by ID error (see logs for more info)", w)
+func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	if err := checkUUID(id); err != nil {
+		h.logger.Error("uuid error, can't delete user", zap.Error(err))
+		render(w, "uuid error, can't delete user")
 		return
 	}
 
-	res, err := h.repo.DeleteRecord(id)
+	userId, err := h.uc.Delete(id)
 	if err != nil {
-		h.logger.Error(err.Error())
-		render("Delete record error (see logs for more info)", w)
+		h.logger.Error("delete user error", zap.Error(err))
+		render(w, "delete user error")
 		return
 	}
 
-	render(fmt.Sprintf("Record with ID > %s deleted successfully!", res), w)
+	render(w, fmt.Sprintf("User with ID: %s, deleted successfully!", userId))
 }
 
-func render(data interface{}, w http.ResponseWriter) {
+func checkUUID(userId string) error {
+	_, err := uuid.Parse(userId)
+	return err
+}
+
+func render(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(data)
 }
