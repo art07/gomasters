@@ -3,104 +3,95 @@ package user
 import (
 	"database/sql"
 	"fmt"
-	"go.uber.org/zap"
 	"playground/rest-api/gomasters/entity"
 )
 
-type UserRepository struct {
-	logger *zap.Logger
-	db     *sql.DB
+type Repository struct {
+	db *sql.DB
 }
 
-func NewUserRepository(l *zap.Logger, db *sql.DB) *UserRepository {
-	return &UserRepository{
-		logger: l,
-		db:     db,
+func NewRepository(db *sql.DB) *Repository {
+	return &Repository{
+		db: db,
 	}
 }
 
-func (ur *UserRepository) GetAll() ([]entity.Person, error) {
+func (ur *Repository) GetAll() ([]*entity.User, error) {
 	rows, err := ur.db.Query("SELECT * FROM users;")
 	if err != nil {
-		return nil, fmt.Errorf("error in GetAll (users) > %v", err)
+		return nil, fmt.Errorf("get all users query error: %v", err)
 	}
 	//goland:noinspection GoUnhandledErrorResult
 	defer rows.Close()
 
-	var persons []entity.Person
+	var users []*entity.User
 	for rows.Next() {
 		var u entity.User
-		if err := rows.Scan(&u.ID, &u.Firstname, &u.Lastname, &u.Email, &u.Age, &u.Created); err != nil {
-			ur.logger.Error("User reading error", zap.Error(err))
-			continue
+		if err = rows.Scan(&u.ID, &u.Firstname, &u.Lastname, &u.Email, &u.Age, &u.Created); err != nil {
+			return nil, fmt.Errorf("get all users rows scan error: %v", err)
 		}
 
-		// Struct validation.
-		if ok := u.Validate(ur.logger); !ok {
-			continue
-		}
-
-		persons = append(persons, &u)
-		ur.logger.Info("User added to slice", zap.String("user", u.String()))
+		users = append(users, &u)
 	}
-	return persons, nil
+
+	return users, nil
 }
 
-func (ur *UserRepository) CreateRecord(p entity.Person) (string, error) {
-	u := p.(*entity.User)
+func (ur *Repository) Create(u *entity.User) (string, error) {
 	row := ur.db.QueryRow(
-		"INSERT INTO users(id, first_name, last_name, email, age, created) "+
-			"VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;",
+		"INSERT INTO users(id, first_name, last_name, email, age, created) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;",
 		u.ID, u.Firstname, u.Lastname, u.Email, u.Age, u.Created)
 	if row.Err() != nil {
-		return "", fmt.Errorf("insert error > %v", row.Err())
+		return "", fmt.Errorf("create error: %v", row.Err())
 	}
 
-	var id string
-	if err := row.Scan(&id); err != nil {
-		return "", fmt.Errorf("insert error > %v", err)
+	var userId string
+	if err := row.Scan(&userId); err != nil {
+		return "", fmt.Errorf("scan id of created user error: %v", err)
 	}
 
-	return id, nil
+	return userId, nil
 }
 
-func (ur *UserRepository) ReadRecord(id string) (entity.Person, error) {
+func (ur *Repository) GetById(id string) (*entity.User, error) {
 	var u entity.User
 	row := ur.db.QueryRow("SELECT * FROM users WHERE id=$1;", id)
+	if row.Err() != nil {
+		return nil, fmt.Errorf("get user by id error: %v", row.Err())
+	}
+
 	if err := row.Scan(&u.ID, &u.Firstname, &u.Lastname, &u.Email, &u.Age, &u.Created); err != nil {
-		return nil, fmt.Errorf("read record error")
+		return nil, fmt.Errorf("get user by id row scan error: %v", err)
 	}
 
 	return &u, nil
 }
 
-func (ur *UserRepository) UpdateRecord(recordId string, p entity.Person) (string, error) {
-	u := p.(*entity.User)
+func (ur *Repository) Update(userId string, u *entity.User) (string, error) {
 	row := ur.db.QueryRow(
 		"UPDATE users SET id=$1, first_name=$2, last_name=$3, email=$4, age=$5, created=$6 WHERE id=$7 RETURNING id;",
-		u.ID, u.Firstname, u.Lastname, u.Email, u.Age, u.Created, recordId)
+		u.ID, u.Firstname, u.Lastname, u.Email, u.Age, u.Created, userId)
 	if row.Err() != nil {
-		return "", fmt.Errorf("update error > %v", row.Err())
+		return "", fmt.Errorf("update error: %v", row.Err())
 	}
 
 	var id string
 	if err := row.Scan(&id); err != nil {
-		return "", fmt.Errorf("update error > %v", err)
+		return "", fmt.Errorf("update ok but row scan for id error: %v", err)
 	}
 
 	return id, nil
 }
 
-func (ur *UserRepository) DeleteRecord(recordId string) (string, error) {
-	row := ur.db.QueryRow(
-		"DELETE FROM users WHERE id=$1 RETURNING id;", recordId)
+func (ur *Repository) Delete(userId string) (string, error) {
+	row := ur.db.QueryRow("DELETE FROM users WHERE id=$1 RETURNING id;", userId)
 	if row.Err() != nil {
-		return "", fmt.Errorf("delete error > %v", row.Err())
+		return "", fmt.Errorf("delete error: %v", row.Err())
 	}
 
 	var id string
 	if err := row.Scan(&id); err != nil {
-		return "", fmt.Errorf("delete error > %v", err)
+		return "", fmt.Errorf("delete ok but row scan for id error: %v", err)
 	}
 
 	return id, nil

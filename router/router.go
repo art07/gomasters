@@ -5,26 +5,23 @@ import (
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 	"net/http"
-	adminHandler "playground/rest-api/gomasters/handler/admin"
 	userHandler "playground/rest-api/gomasters/handler/user"
-	adminRepo "playground/rest-api/gomasters/repository/postgres/admin"
 	userRepo "playground/rest-api/gomasters/repository/postgres/user"
-	adminUsecase "playground/rest-api/gomasters/usecase/admin"
 	userUsecase "playground/rest-api/gomasters/usecase/user"
 )
 
 func NewRouter(db *sql.DB, l *zap.Logger) chi.Router {
 	// DB inject in repository
 	uRepo := userRepo.NewRepository(db)
-	aRepo := adminRepo.NewRepository(db)
+	//aRepo := adminRepo.NewRepository(db)
 
 	// Repo inject in usecase
 	uUsecase := userUsecase.NewUsecase(uRepo)
-	aUsecase := adminUsecase.NewUsecase(aRepo)
+	//aUsecase := adminUsecase.NewUsecase(aRepo)
 
 	// Usecase inject in handler
 	uHandler := userHandler.NewHandler(l, uUsecase)
-	aHandler := adminHandler.NewHandler(l, aUsecase)
+	//aHandler := adminHandler.NewHandler(l, aUsecase)
 
 	r := chi.NewRouter()
 
@@ -45,16 +42,16 @@ func NewRouter(db *sql.DB, l *zap.Logger) chi.Router {
 		})
 	})
 
-	r.Route("/admins", func(r chi.Router) {
-		r.Get("/", aHandler.GetAll)
-		r.Post("/", aHandler.Create)
-
-		r.Route("/{id}", func(r chi.Router) {
-			r.Get("/", aHandler.GetById)
-			r.Put("/", aHandler.Update)
-			r.Delete("/", aHandler.Delete)
-		})
-	})
+	//r.Route("/admins", func(r chi.Router) {
+	//	r.Get("/", aHandler.GetAll)
+	//	r.Post("/", aHandler.Create)
+	//
+	//	r.Route("/{id}", func(r chi.Router) {
+	//		r.Get("/", aHandler.GetById)
+	//		r.Put("/", aHandler.Update)
+	//		r.Delete("/", aHandler.Delete)
+	//	})
+	//})
 
 	return r
 }

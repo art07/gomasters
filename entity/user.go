@@ -2,9 +2,7 @@ package entity
 
 import (
 	"fmt"
-	valid "github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
-	"go.uber.org/zap"
 	"time"
 )
 
@@ -26,13 +24,4 @@ func NewUser() *User {
 
 func (u *User) String() string {
 	return fmt.Sprintf("Id > %v, first name > %s, last name > %s", u.ID, u.Firstname, u.Lastname)
-}
-
-func (u *User) Validate(l *zap.Logger) bool {
-	validate := valid.New()
-	if err := validate.Struct(u); err != nil {
-		l.Error("Validation error for user", zap.Error(err), zap.String("user", u.String()))
-		return false
-	}
-	return true
 }
