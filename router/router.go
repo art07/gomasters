@@ -2,8 +2,10 @@ package router
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
+	"log"
 	"net/http"
 	userHandler "playground/rest-api/gomasters/handler/user"
 	userRepo "playground/rest-api/gomasters/repository/postgres/user"
@@ -24,6 +26,7 @@ func NewRouter(db *sql.DB, l *zap.Logger) *mux.Router {
 	//aHandler := adminHandler.NewHandler(l, aUsecase)
 
 	r := mux.NewRouter()
+	r.Use(middleware)
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if _, err := w.Write([]byte("REST API works fine)")); err != nil {
@@ -41,4 +44,11 @@ func NewRouter(db *sql.DB, l *zap.Logger) *mux.Router {
 	usersIdRouter.HandleFunc("", uHandler.Delete).Methods(http.MethodDelete)
 
 	return r
+}
+
+func middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println(fmt.Sprintf("Method: %s, path: %s", r.Method, r.RequestURI))
+		next.ServeHTTP(w, r)
+	})
 }
