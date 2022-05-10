@@ -3,8 +3,8 @@ package user
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"net/http"
 	"playground/rest-api/gomasters/entity"
@@ -63,7 +63,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetById(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := mux.Vars(r)["id"]
 	if err := checkUUID(id); err != nil {
 		h.logger.Error("uuid error", zap.Error(err))
 		render(w, "uuid error")
@@ -83,7 +83,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	//goland:noinspection GoUnhandledErrorResult
 	defer r.Body.Close()
 
-	id := chi.URLParam(r, "id")
+	id := mux.Vars(r)["id"]
 	if err := checkUUID(id); err != nil {
 		h.logger.Error("uuid error", zap.Error(err))
 		render(w, "uuid error")
@@ -114,7 +114,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := mux.Vars(r)["id"]
 	if err := checkUUID(id); err != nil {
 		h.logger.Error("uuid error, can't delete user", zap.Error(err))
 		render(w, "uuid error, can't delete user")

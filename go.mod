@@ -3,9 +3,9 @@ module playground/rest-api/gomasters
 go 1.18
 
 require (
-	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-playground/validator/v10 v10.11.0
 	github.com/google/uuid v1.3.0
+	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgx/v4 v4.16.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	go.uber.org/zap v1.21.0
