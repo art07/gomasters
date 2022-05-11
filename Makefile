@@ -10,4 +10,4 @@ lint:
 
 # Mockgen
 gen:
-	mockgen -source=handler/handler.go -destination=mocks/handler.go -package=mocks
+	mockgen -source=usecase/user/usecase.go -destination=mock/user_repo.go -package=mock

@@ -58,6 +58,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		render(w, "create user error")
 		return
 	}
+	h.logger.Info("create user succeeded")
 
 	render(w, fmt.Sprintf("User with ID: %s, created successfully!", userId))
 }
@@ -76,6 +77,8 @@ func (h *Handler) GetById(w http.ResponseWriter, r *http.Request) {
 		render(w, "get by id error")
 		return
 	}
+	h.logger.Info("ger by id succeeded")
+
 	render(w, user)
 }
 
@@ -109,6 +112,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		render(w, "update error")
 		return
 	}
+	h.logger.Info("user update succeeded")
 
 	render(w, fmt.Sprintf("User with ID: %s, updated successfully!", userId))
 }
@@ -127,6 +131,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		render(w, "delete user error")
 		return
 	}
+	h.logger.Info("user delete succeeded")
 
 	render(w, fmt.Sprintf("User with ID: %s, deleted successfully!", userId))
 }
