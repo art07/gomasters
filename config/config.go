@@ -2,44 +2,32 @@ package config
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
-	"gopkg.in/yaml.v2"
-	"os"
 )
 
 var appConfig *AppConfig
 
 type AppConfig struct {
-	Server struct {
-		Host string `yaml:"host" envconfig:"SERVER_HOST"`
-		Port string `yaml:"port" envconfig:"SERVER_PORT"`
-	} `yaml:"server"`
+	// Server
+	AppAddr string `envconfig:"APP_ADDR" required:"true"`
 
-	Database struct {
-		Host     string `yaml:"host" envconfig:"DB_HOST"`
-		Port     string `yaml:"port" envconfig:"DB_PORT"`
-		Name     string `yaml:"name" envconfig:"DB_NAME"`
-		User     string `yaml:"user" envconfig:"DB_USER"`
-		Password string `yaml:"password" envconfig:"DB_PASSWORD"`
-	} `yaml:"database"`
+	// Postgres
+	PgHost     string `envconfig:"PG_HOST" required:"true"`
+	PgPort     string `envconfig:"PG_PORT" default:"5432"`
+	PgDb       string `envconfig:"PG_DB" required:"true"`
+	PgUser     string `envconfig:"PG_USER" required:"true"`
+	PgPassword string `envconfig:"PG_PASSWORD" required:"true"`
 }
 
 func GetAppConfig() (*AppConfig, error) {
 	if appConfig == nil {
-		cfgFile, err := os.Open("./config/config.yml")
-		if err != nil {
+		if err := godotenv.Load(); err != nil {
 			return nil, err
 		}
-		//goland:noinspection GoUnhandledErrorResult
-		defer cfgFile.Close()
 
 		appConfig = &AppConfig{}
-		decoder := yaml.NewDecoder(cfgFile)
-		if err = decoder.Decode(appConfig); err != nil {
-			return nil, err
-		}
-
-		if err = envconfig.Process("", appConfig); err != nil {
+		if err := envconfig.Process("", appConfig); err != nil {
 			return nil, err
 		}
 	}
@@ -48,9 +36,5 @@ func GetAppConfig() (*AppConfig, error) {
 
 func (c *AppConfig) GetDbString() string {
 	return fmt.Sprintf("user=%s password=%s host=%s port=%s database=%s sslmode=disable",
-		c.Database.User, c.Database.Password, c.Database.Host, c.Database.Port, c.Database.Name)
-}
-
-func (c *AppConfig) GetServerString() string {
-	return fmt.Sprintf("%s:%s", c.Server.Host, c.Server.Port)
+		c.PgUser, c.PgPassword, c.PgHost, c.PgPort, c.PgDb)
 }

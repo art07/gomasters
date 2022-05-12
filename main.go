@@ -32,6 +32,6 @@ func main() {
 	logger.Info("Db OK")
 
 	r := router.NewRouter(db, logger)
-	logger.Info("Start http server", zap.String("server", cfg.GetServerString()))
-	logger.Fatal("fatal server error", zap.Error(http.ListenAndServe(cfg.GetServerString(), r)))
+	logger.Info("Start http server", zap.String("server", cfg.AppAddr))
+	logger.Fatal("fatal server error", zap.Error(http.ListenAndServe(cfg.AppAddr, r)))
 }
