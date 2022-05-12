@@ -16,13 +16,13 @@ type AppConfig struct {
 	PgHost     string `envconfig:"PG_HOST" required:"true"`
 	PgPort     string `envconfig:"PG_PORT" default:"5432"`
 	PgDb       string `envconfig:"PG_DB" required:"true"`
-	PgUser     string `envconfig:"PG_USER" required:"true"`
+	PgUser     string `envconfig:"PG_USER" default:"postgres"`
 	PgPassword string `envconfig:"PG_PASSWORD" required:"true"`
 }
 
 func GetAppConfig() (*AppConfig, error) {
 	if appConfig == nil {
-		if err := godotenv.Load(); err != nil {
+		if err := godotenv.Load(".env"); err != nil {
 			return nil, err
 		}
 

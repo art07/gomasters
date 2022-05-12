@@ -32,6 +32,24 @@ func main() {
 	logger.Info("Db OK")
 
 	r := router.NewRouter(db, logger)
+
+	server := &http.Server{
+		Addr:    cfg.AppAddr,
+		Handler: r,
+	}
 	logger.Info("Start http server", zap.String("server", cfg.AppAddr))
-	logger.Fatal("fatal server error", zap.Error(http.ListenAndServe(cfg.AppAddr, r)))
+	logger.Fatal("fatal server error", zap.Error(server.ListenAndServe()))
+
+	//c := make(chan os.Signal, 1)
+	//signal.Notify(c, os.Interrupt)
+	//<-c
+	//
+	//cctx, cancel := context.WithTimeout(context.Background(), wait)
+	//defer cancel()
+	//err = server.Shutdown(cctx)
+	//if err != nil {
+	//	logger.Error("shutdown error", zap.Error(err))
+	//}
+	//logger.Error("shutting down")
+	//os.Exit(0)
 }
