@@ -3,8 +3,8 @@ package user
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"net/http"
 	"playground/rest-api/gomasters/entity"
@@ -58,12 +58,13 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		render(w, "create user error")
 		return
 	}
+	h.logger.Info("create user succeeded")
 
 	render(w, fmt.Sprintf("User with ID: %s, created successfully!", userId))
 }
 
 func (h *Handler) GetById(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := mux.Vars(r)["id"]
 	if err := checkUUID(id); err != nil {
 		h.logger.Error("uuid error", zap.Error(err))
 		render(w, "uuid error")
@@ -76,6 +77,8 @@ func (h *Handler) GetById(w http.ResponseWriter, r *http.Request) {
 		render(w, "get by id error")
 		return
 	}
+	h.logger.Info("ger by id succeeded")
+
 	render(w, user)
 }
 
@@ -83,7 +86,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	//goland:noinspection GoUnhandledErrorResult
 	defer r.Body.Close()
 
-	id := chi.URLParam(r, "id")
+	id := mux.Vars(r)["id"]
 	if err := checkUUID(id); err != nil {
 		h.logger.Error("uuid error", zap.Error(err))
 		render(w, "uuid error")
@@ -109,12 +112,13 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 		render(w, "update error")
 		return
 	}
+	h.logger.Info("user update succeeded")
 
 	render(w, fmt.Sprintf("User with ID: %s, updated successfully!", userId))
 }
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	id := mux.Vars(r)["id"]
 	if err := checkUUID(id); err != nil {
 		h.logger.Error("uuid error, can't delete user", zap.Error(err))
 		render(w, "uuid error, can't delete user")
@@ -127,6 +131,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		render(w, "delete user error")
 		return
 	}
+	h.logger.Info("user delete succeeded")
 
 	render(w, fmt.Sprintf("User with ID: %s, deleted successfully!", userId))
 }
