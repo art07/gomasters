@@ -2,6 +2,7 @@ package user
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"playground/rest-api/gomasters/entity"
 )
@@ -84,15 +85,15 @@ func (ur *Repository) Update(userId string, u *entity.User) (string, error) {
 }
 
 func (ur *Repository) Delete(userId string) (string, error) {
-	row := ur.db.QueryRow("DELETE FROM users WHERE id=$1 RETURNING id;", userId)
-	if row.Err() != nil {
-		return "", fmt.Errorf("delete error: %v", row.Err())
+	res, err := ur.db.Exec("DELETE FROM users WHERE id=$1;", userId)
+	if err != nil {
+		return "", fmt.Errorf("delete error: %v", err)
 	}
 
-	var id string
-	if err := row.Scan(&id); err != nil {
-		return "", fmt.Errorf("delete ok but row scan for id error: %v", err)
+	rowsAffected, _ := res.RowsAffected()
+	if rowsAffected != 1 {
+		return "", errors.New("no row found to delete")
 	}
 
-	return id, nil
+	return userId, nil
 }

@@ -13,7 +13,7 @@ func main() {
 	logger, _ := zap.NewProduction()
 	logger.Info("Golang REST API started")
 
-	cfg, err := config.GetAppConfig()
+	cfg, err := config.GetAppConfig(".env")
 	if err != nil {
 		logger.Fatal("config reading error", zap.Error(err))
 	}

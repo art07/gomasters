@@ -20,9 +20,9 @@ type AppConfig struct {
 	PgPassword string `envconfig:"PG_PASSWORD" required:"true"`
 }
 
-func GetAppConfig() (*AppConfig, error) {
+func GetAppConfig(path string) (*AppConfig, error) {
 	if appConfig == nil {
-		if err := godotenv.Load(".env"); err != nil {
+		if err := godotenv.Load(path); err != nil {
 			return nil, err
 		}
 
