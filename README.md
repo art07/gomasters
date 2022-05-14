@@ -1,18 +1,20 @@
 <h1>GoMasters REST API</h1>
 
-This REST API was created as a study project.</br>
+This REST API was created as a study 📖 project.</br>
 
-Used libs:
-* router: go-chi/chi
+Used libs 📚:
+<pre>
+* router: gorilla/mux
 * validation: go-playground/validator;
 * uuid: google/uuid;
 * postgres driver: jackc/pgx;
-* read envs: kelseyhightower/envconfig;
+* read envs: joho/godotenv and kelseyhightower/envconfig;
 * logger: go.uber.org/zap;
-* read yaml: gopkg.in/yaml;
-* lint: golangci-lint.
+* lint: golangci-lint;
+* tests: mock/gomock and stretchr/testify/assert.
+</pre>
 
-DB: PostgreSQL (password saved as an env var, other parameters saved in yml file).</br>
+DB: PostgreSQL 🐘</br>
 
 Requests:
 <pre>
